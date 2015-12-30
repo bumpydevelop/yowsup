@@ -65,4 +65,9 @@ class LiteIdentityKeyStore(IdentityKeyStore):
         result = c.fetchone()
         if not result:
             return True
-        return result[0] == identityKey.getPublicKey().serialize()
+        if result[0] == identityKey.getPublicKey().serialize():
+            return True
+        else:
+            logger.info("Removed untrusted key")
+            self.saveIdentity(recipientId, identityKey)
+            return True

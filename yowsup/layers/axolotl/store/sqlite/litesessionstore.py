@@ -11,11 +11,14 @@ class LiteSessionStore(SessionStore):
 
 
     def loadSession(self, recipientId, deviceId):
+        result = None
         q = "SELECT record FROM sessions WHERE recipient_id = ? AND device_id = ?"
-        c = self.dbConn.cursor()
-        c.execute(q, (recipientId, deviceId))
-        result = c.fetchone()
-
+        try:
+            c = self.dbConn.cursor()
+            c.execute(q, (recipientId, deviceId))
+            result = c.fetchone()
+        except:
+            pass
         if result:
             return SessionRecord(serialized=result[0])
         else:
