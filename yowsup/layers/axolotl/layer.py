@@ -2,6 +2,7 @@ from yowsup.layers import YowProtocolLayer, YowLayerEvent
 from .protocolentities import SetKeysIqProtocolEntity
 from axolotl.util.keyhelper import KeyHelper
 from .store.sqlite.liteaxolotlstore import LiteAxolotlStore
+from .store.mysql.myaxolotstore import MyAxolotlStore
 from axolotl.sessionbuilder import SessionBuilder
 from yowsup.layers.protocol_messages.protocolentities.message import MessageProtocolEntity
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
@@ -37,6 +38,10 @@ class YowAxolotlLayer(YowProtocolLayer):
     _STATE_HASKEYS = 2
     _COUNT_PREKEYS = 200
     _DB = "axolotl.db"
+    PROP_STORE_TYPE = "org.openwhatsapp.yowsup.prop.axolotl.store_type"
+    PROP_CONNECTION_STRING = "org.openwhatsapp.yowsup.prop.axolotl.connection_string"
+
+
 
     def __init__(self):
         super(YowAxolotlLayer, self).__init__()
@@ -52,13 +57,15 @@ class YowAxolotlLayer(YowProtocolLayer):
     @property
     def store(self):
         if self._store is None:
-            self.store = LiteAxolotlStore(
-                StorageTools.constructPath(
-                    self.getProp(
-                        YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0],
-                    self.__class__._DB
-                )
-            )
+            conn_str = self.getProp(self.__class__.PROP_CONNECTION_STRING)
+            conn_type = self.getProp(self.__class__.PROP_STORE_TYPE)
+            phone_number = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0]
+            if (conn_type == 'mysql' and conn_str):
+                self.store = MyAxolotlStore(conn_str, phone_number)
+            else:
+                self.store = LiteAxolotlStore(
+                    StorageTools.constructPath(phone_number, self.__class__._DB)
+                    )
             self.state = self.__class__._STATE_HASKEYS if  self.store.getLocalRegistrationId() is not None \
                 else self.__class__._STATE_INIT
 
