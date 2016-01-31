@@ -21,7 +21,7 @@ class MyPreKeyStore(PreKeyStore):
 
         result = cursor.fetchone()
         if not result:
-            raise Exception("No such prekeyRecord!")
+            raise Exception("No such prekeyRecord! where prekey_id {} for phone {}".format(preKeyId,self.phoneNumber))
 
         return PreKeyRecord(serialized = result[0])
 

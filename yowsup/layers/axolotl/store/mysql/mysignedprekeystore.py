@@ -24,7 +24,7 @@ class MySignedPreKeyStore(SignedPreKeyStore):
 
         result = cursor.fetchone()
         if not result:
-            raise InvalidKeyIdException("No such signedprekeyrecord! %s " % signedPreKeyId)
+            raise InvalidKeyIdException("No such signedprekeyrecord! {}  for phone {}".format(signedPreKeyId, self.phoneNumber))
 
         return SignedPreKeyRecord(serialized=result[0])
 
