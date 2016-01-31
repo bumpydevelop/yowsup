@@ -1,9 +1,11 @@
 from axolotl.state.signedprekeystore import SignedPreKeyStore
 from axolotl.state.signedprekeyrecord import SignedPreKeyRecord
 from axolotl.invalidkeyidexception import InvalidKeyIdException
-class MySignedPreKeyStore(SignedPreKeyStore):
-    
+import logging
+logger = logging.getLogger(__name__)
 
+
+class MySignedPreKeyStore(SignedPreKeyStore):
 
     def __init__(self, dbConn, phoneNumber):
         """
@@ -41,10 +43,10 @@ class MySignedPreKeyStore(SignedPreKeyStore):
         return results
 
     def storeSignedPreKey(self, signedPreKeyId, signedPreKeyRecord):
-        #q = "DELETE FROM {}_signed_prekeys WHERE prekey_id = ?"
+        #q = "DELETE FROM {}_signed_prekeys WHERE prekey_id = %s"
         #self.dbConn.cursor().execute(q, (signedPreKeyId,))
         #self.dbConn.commit()
-
+        logger.info("storing signed pre key {} for phone number {}".format(signedPreKeyId,self.phoneNumber))
         q = "INSERT INTO {}_signed_prekeys (prekey_id, record) VALUES(%s,%s)".format(self.phoneNumber)
         cursor = self.dbConn.cursor()
         cursor.execute(q, (signedPreKeyId, signedPreKeyRecord.serialize()))
