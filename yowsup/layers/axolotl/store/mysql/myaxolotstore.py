@@ -4,6 +4,9 @@ from .myprekeystore import MyPreKeyStore
 from .mysessionstore import MySessionStore
 from .mysignedprekeystore import MySignedPreKeyStore
 import MySQLdb
+import logging
+import sys
+logger = logging.getLogger(__name__)
 class MyAxolotlStore(AxolotlStore):
 
     def parse_args(self, conn_args):
@@ -15,12 +18,13 @@ class MyAxolotlStore(AxolotlStore):
 
     def __init__(self, conn_stream, phone_number):
         args = self.parse_args(conn_stream)
-        conn = MySQLdb.connect(**args)
-        conn.text_factory = bytes
-        self.identityKeyStore = MyIdentityKeyStore(conn, phone_number)
-        self.preKeyStore =  MyPreKeyStore(conn, phone_number)
-        self.signedPreKeyStore = MySignedPreKeyStore(conn, phone_number)
-        self.sessionStore = MySessionStore(conn, phone_number)
+        self.conn_stream = args
+        #conn = MySQLdb.connect(**args)
+        #conn.text_factory = bytes
+        self.identityKeyStore = MyIdentityKeyStore(args, phone_number)
+        self.preKeyStore =  MyPreKeyStore(args, phone_number)
+        self.signedPreKeyStore = MySignedPreKeyStore(args, phone_number)
+        self.sessionStore = MySessionStore(args, phone_number)
 
     def getIdentityKeyPair(self):
         return self.identityKeyStore.getIdentityKeyPair()
@@ -38,7 +42,11 @@ class MyAxolotlStore(AxolotlStore):
         return self.identityKeyStore.isTrustedIdentity(recepientId, identityKey)
 
     def loadPreKey(self, preKeyId):
-        return self.preKeyStore.loadPreKey(preKeyId)
+        try:
+            return self.preKeyStore.loadPreKey(preKeyId)
+        except:
+           logger.error("ERROR :: {}".format(sys.exc_info()[1]))
+           return None
 
     def loadPreKeys(self):
         return self.preKeyStore.loadPendingPreKeys()

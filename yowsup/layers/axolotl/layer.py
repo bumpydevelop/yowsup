@@ -61,7 +61,10 @@ class YowAxolotlLayer(YowProtocolLayer):
             conn_type = self.getProp(self.__class__.PROP_STORE_TYPE)
             phone_number = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0]
             if (conn_type == 'mysql' and conn_str):
+               # try:
                 self.store = MyAxolotlStore(conn_str, phone_number)
+               # except:
+                #    logger.error("ERROR:: {} ".format(sys.exc_info()[1]))
             else:
                 self.store = LiteAxolotlStore(
                     StorageTools.constructPath(phone_number, self.__class__._DB)
@@ -90,6 +93,7 @@ class YowAxolotlLayer(YowProtocolLayer):
 
     ### standard layer methods ###
     def onEvent(self, yowLayerEvent):
+        phone_number = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0]
         if yowLayerEvent.getName() == self.__class__.EVENT_PREKEYS_SET:
             self.sendKeys(fresh=False)
         elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
@@ -97,7 +101,7 @@ class YowAxolotlLayer(YowProtocolLayer):
                 self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
         elif yowLayerEvent.getName() == YowAuthenticationProtocolLayer.EVENT_AUTHED:
             if yowLayerEvent.getArg("passive") and self.isInitState():
-                logger.info("Axolotl layer is generating keys")
+                logger.info("Axolotl layer is generating keys for {}".format(phone_number))
                 self.sendKeys()
         elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
             if self.isGenKeysState():
