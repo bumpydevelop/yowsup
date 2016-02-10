@@ -42,11 +42,7 @@ class MyAxolotlStore(AxolotlStore):
         return self.identityKeyStore.isTrustedIdentity(recepientId, identityKey)
 
     def loadPreKey(self, preKeyId):
-        try:
-            return self.preKeyStore.loadPreKey(preKeyId)
-        except:
-           logger.error("ERROR :: {}".format(sys.exc_info()[1]))
-           return None
+        return self.preKeyStore.loadPreKey(preKeyId)
 
     def loadPreKeys(self):
         return self.preKeyStore.loadPendingPreKeys()
