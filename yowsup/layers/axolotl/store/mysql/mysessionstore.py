@@ -56,7 +56,8 @@ class MySessionStore(SessionStore):
     def storeSession(self, recipientId, deviceId, sessionRecord):
         self.deleteSession(recipientId, deviceId)
         dbConn = self.get_conn()
-        q = "INSERT INTO {}_sessions(recipient_id, device_id, record) VALUES(%s,%s,%s)".format(self.phoneNumber)
+        q = """INSERT INTO {}_sessions(recipient_id, device_id, record) VALUES(%s,%s,%s)
+                ON DUPLICATE KEY UPDATE device_id=VALUES(device_id), record=VALUES(record)""".format(self.phoneNumber)
         c = dbConn.cursor()
         c.execute(q, (recipientId, deviceId, sessionRecord.serialize()))
         dbConn.commit()

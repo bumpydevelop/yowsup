@@ -22,7 +22,7 @@ class MyIdentityKeyStore(IdentityKeyStore):
         self.args = args
         self.phoneNumber = phoneNumber
         q = """CREATE TABLE IF NOT EXISTS %s_identities (_id INT NOT NULL AUTO_INCREMENT,
-                       recipient_id BIGINT UNIQUE,registration_id INT, public_key BLOB, private_key BLOB,
+                       recipient_id BIGINT UNIQUE,registration_id INT, public_key LONGBLOB, private_key LONGBLOB,
                        next_prekey_id INT, timestamp INT, PRIMARY KEY (_id));""" % phoneNumber
         dbConn = self.get_conn()  
         with warnings.catch_warnings():
@@ -57,7 +57,8 @@ class MyIdentityKeyStore(IdentityKeyStore):
 
 
     def storeLocalData(self, registrationId, identityKeyPair):
-        q = "INSERT INTO {}_identities(recipient_id, registration_id, public_key, private_key) VALUES(-1, %s, %s, %s)".format(self.phoneNumber)
+        q = """INSERT INTO {}_identities(recipient_id, registration_id, public_key, private_key) VALUES(-1, %s, %s, %s)
+             ON DUPLICATE KEY UPDATE registration_id=VALUES(registration_id),public_key=VALUES(public_key),private_key=VALUES(private_key)""".format(self.phoneNumber)
         dbConn = self.get_conn()
         c = dbConn.cursor()
         c.execute(q, (registrationId, identityKeyPair.getPublicKey().getPublicKey().serialize(),
