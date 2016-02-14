@@ -22,7 +22,7 @@ class MyPreKeyStore(PreKeyStore):
         
         dbConn =  self.get_conn()
         q = """CREATE TABLE IF NOT EXISTS %s_prekeys (_id INT NOT NULL AUTO_INCREMENT,
-               prekey_id INT UNIQUE, sent_to_server BOOLEAN, record LONGBLOB, PRIMARY KEY (_id));""" % phoneNumber
+               prekey_id BIGINT UNIQUE, sent_to_server BOOLEAN, record LONGBLOB, PRIMARY KEY (_id));""" % phoneNumber
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             c = dbConn.cursor()

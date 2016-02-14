@@ -6,6 +6,8 @@ from axolotl.identitykeypair import IdentityKeyPair
 from axolotl.ecc.djbec import *
 import warnings
 import MySQLdb
+import logging
+logger = logging.getLogger(__name__)
 
 class MyIdentityKeyStore(IdentityKeyStore):
 
@@ -21,9 +23,9 @@ class MyIdentityKeyStore(IdentityKeyStore):
         """
         self.args = args
         self.phoneNumber = phoneNumber
-        q = """CREATE TABLE IF NOT EXISTS %s_identities (_id INT NOT NULL AUTO_INCREMENT,
-                       recipient_id BIGINT UNIQUE,registration_id INT, public_key LONGBLOB, private_key LONGBLOB,
-                       next_prekey_id INT, timestamp INT, PRIMARY KEY (_id));""" % phoneNumber
+        q = """CREATE TABLE IF NOT EXISTS %s_identities (_id BIGINT NOT NULL AUTO_INCREMENT,
+                       recipient_id BIGINT UNIQUE,registration_id BIGINT, public_key LONGBLOB, private_key LONGBLOB,
+                       next_prekey_id BIGINT, timestamp INT, PRIMARY KEY (_id));""" % phoneNumber
         dbConn = self.get_conn()  
         with warnings.catch_warnings():
             warnings.simplefilter("ignore") 

@@ -20,7 +20,7 @@ class MySessionStore(SessionStore):
         self.phoneNumber = phoneNumber
         dbConn = self.get_conn()
         q = """CREATE TABLE IF NOT EXISTS %s_sessions (_id INT NOT NULL AUTO_INCREMENT,
-                       recipient_id BIGINT(20) UNIQUE, device_id INT, record LONGBLOB, timestamp INT, PRIMARY KEY (_id));"""% phoneNumber
+                       recipient_id BIGINT(20) UNIQUE, device_id BIGINT, record LONGBLOB, timestamp INT, PRIMARY KEY (_id));"""% phoneNumber
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             dbConn.cursor().execute(q)
