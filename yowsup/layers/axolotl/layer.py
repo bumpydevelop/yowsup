@@ -155,7 +155,7 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.store = None
 
     def send(self, node):
-        if node.tag == "message" and node["to"] not in self.skipEncJids and not YowConstants.WHATSAPP_GROUP_SERVER in node["to"]:
+        if node.tag == "message" and node["to"] not in self.skipEncJids and not YowConstants.WHATSAPP_GROUP_SERVER in node["to"] and not YowConstants.WHATSAPP_BROADCAST_SERVER in node["to"]:
             self.handlePlaintextNode(node)
             return
         self.toLower(node)
@@ -375,6 +375,10 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.handleImageMessage(node, m.image_message)
         elif m.HasField("document_message"):
             self.handleDocumentMessage(node, m.document_message)
+        elif m.HasField("video_message"):
+            self.handleVideoMessage(node, m.video_message)
+        elif m.HasField("audio_message"):
+            self.handleAudioMessage(node, m.audio_message)
         else:
             print(m)
             raise ValueError("Unhandled")
@@ -409,6 +413,47 @@ class YowAxolotlLayer(YowProtocolLayer):
             "ip": "0",
             "mediakey": imageMessage.media_key
         }, data = imageMessage.jpeg_thumbnail)
+        messageNode.addChild(mediaNode)
+
+        self.toUpper(messageNode)
+
+    def handleAudioMessage(self, originalEncNode, audioMessage):
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "audio",
+            "filehash": audioMessage.file_sha256,
+            "size": str(audioMessage.file_length),
+            "url": audioMessage.url,
+            "mimetype": audioMessage.mime_type,
+            "duration": str(audioMessage.duration),
+            "seconds": str(audioMessage.duration),
+            "encoding": "raw",
+            "file": "enc",
+            "ip": "0",
+            "mediakey": audioMessage.media_key
+        })
+        messageNode.addChild(mediaNode)
+
+        self.toUpper(messageNode)
+
+    def handleVideoMessage(self, originalEncNode, videoMessage):
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "video",
+            "filehash": videoMessage.file_sha256,
+            "size": str(videoMessage.file_length),
+            "url": videoMessage.url,
+            "mimetype": videoMessage.mime_type,
+            "duration": str(videoMessage.duration),
+            "seconds": str(videoMessage.duration),
+            "caption": videoMessage.caption,
+            "encoding": "raw",
+            "file": "enc",
+            "ip": "0",
+            "mediakey": videoMessage.media_key
+        }, data = videoMessage.jpeg_thumbnail)
         messageNode.addChild(mediaNode)
 
         self.toUpper(messageNode)
