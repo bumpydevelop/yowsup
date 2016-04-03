@@ -527,18 +527,6 @@ class YowAxolotlLayer(YowProtocolLayer):
             idx -= 1
         return value, consumedBytes
 
-    def decodeInt7bit(self, string):
-        idx = 0
-        while ord(string[idx]) >= 128:
-            idx += 1
-        consumedBytes = idx + 1
-        value = 0
-        while idx >= 0:
-            value <<= 7
-            value += ord(string[idx]) % 128
-            idx -= 1
-        return value, consumedBytes
-
     def unpadV2Plaintext(self, v2plaintext):
         end = -ord(v2plaintext[-1]) # length of the left padding
         length,consumed = self.decodeInt7bit(v2plaintext[1:])

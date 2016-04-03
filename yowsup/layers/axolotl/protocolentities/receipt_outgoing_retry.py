@@ -49,7 +49,7 @@ class RetryOutgoingReceiptProtocolEntity(OutgoingReceiptProtocolEntity):
         entity = OutgoingReceiptProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = RetryOutgoingReceiptProtocolEntity
         retryNode = node.getChild("retry")
-        entity.setRetryData(retryNode["t"], "1", retryNode["count"], node.getChild("registration").data)
+        entity.setRetryData(retryNode["t"], retryNode["v"], retryNode["count"], node.getChild("registration").data)
 
 
     @staticmethod
